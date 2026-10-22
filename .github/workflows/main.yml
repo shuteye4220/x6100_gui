@@ -6,6 +6,10 @@ on:
     tags:
       - '**'           # Push events to every tag
 
+# A fork's token is read-only by default; the release step needs to write.
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -97,6 +101,15 @@ jobs:
     #   with:
     #     name: sdcard.${{ github.ref_name }}.img
     #     path: AetherX6100Buildroot/build/images/sdcard.${{ github.ref_name }}.img
+
+    # Keep the image as a downloadable build artifact too, in case the
+    # release step can't publish it.
+    - name: Upload image
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdcard.${{ github.ref_name }}.img.zip
+        path: AetherX6100Buildroot/build/images/sdcard.${{ github.ref_name }}.img.zip
+        retention-days: 30
 
     # Create release
     - name: Release
