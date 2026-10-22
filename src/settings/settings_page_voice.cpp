@@ -68,6 +68,22 @@ static void make_voice_lang(SettingsPage &page) {
     page.row++;
 }
 
+static void make_voice_extras(SettingsPage &page) {
+    lv_obj_t *obj;
+
+    page.label("Read function keys");
+    obj = page.cell(4, 3, SMALL_3);
+    obj = page.switch_bool(obj, *cfg.voice.keys(), "Read function keys");
+    lv_obj_set_width(obj, SMALL_3 - 30);
+    page.row++;
+
+    page.label("Report power, SWR");
+    obj = page.cell(4, 3, SMALL_3);
+    obj = page.switch_bool(obj, *cfg.voice.tx_report(), "Report power and S W R after transmit");
+    lv_obj_set_width(obj, SMALL_3 - 30);
+    page.row++;
+}
+
 /***** PAGE *****/
 
 void make_voice_page(SettingsPage &page) {
@@ -75,6 +91,7 @@ void make_voice_page(SettingsPage &page) {
 
     make_voice(page);
     make_voice_lang(page);
+    make_voice_extras(page);
 
     page.finish();
 }

@@ -214,6 +214,10 @@ void meter_set_mode(meter_mode_t mode) {
     }
 }
 
+float meter_get_db(void) {
+    return meter_db;
+}
+
 void meter_update(float db, float beta) {
     meter_db = meter_db * beta + db * (1.0f - beta);
 

@@ -32,6 +32,13 @@ static float alc;
 
 static uint8_t msg_id;
 
+/* Summary of the last transmission for the voice assistant: the highest
+ * power seen and the SWR at that moment (SWR means little at low power).
+ * Written on the radio thread, read on the UI thread after RX. */
+static volatile float last_pwr_peak = 0.0f;
+static volatile float last_swr      = 0.0f;
+static volatile bool  have_last_tx  = false;
+
 static uint64_t prev_ui_update = 0;
 
 static x6100_mode_t cur_mode;
@@ -71,6 +78,9 @@ static void tx_cb(void * s, lv_msg_t * msg) {
     pwr  = 0.0f;
     vswr = 0.0f;
     alc  = 0.0f;
+
+    last_pwr_peak = 0.0f;
+    last_swr      = 0.0f;
 
     lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
 }
@@ -208,8 +218,28 @@ void tx_info_update(float p, float s, float a) {
             lpf(&alc, a, beta, 0.0f);
             lpf(&vswr, s, beta, 0.0f);
     }
+
+    if (pwr > last_pwr_peak) {
+        last_pwr_peak = pwr;
+        last_swr      = vswr;
+        if (pwr > 0.05f) {
+            have_last_tx = true;
+        }
+    }
+
     msg_id++;
     scheduler_put_noargs(update_tx_info);
+}
+
+bool tx_info_get_summary(float *pwr_p, float *vswr_p) {
+    if (!have_last_tx) {
+        return false;
+    }
+    if (pwr_p)
+        *pwr_p = last_pwr_peak;
+    if (vswr_p)
+        *vswr_p = last_swr;
+    return true;
 }
 
 bool tx_info_refresh(uint8_t *prev_msg_id, float *alc_p, float *pwr_p, float *vswr_p) {

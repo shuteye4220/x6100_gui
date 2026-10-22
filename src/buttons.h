@@ -84,6 +84,9 @@ void            buttons_mark(button_data_t *data, bool val);
 void            buttons_disabled(button_data_t *data, bool val);
 void            buttons_load(uint8_t n, button_data_t *data);
 void            buttons_load_page(buttons_page_t *page);
+/* Speak the page name and what each key does: on page load if that voice
+ * option is on, or on demand (even with voice mode off). */
+void            buttons_say_page(buttons_page_t *page, bool on_demand);
 void            buttons_unload_page();
 void            button_next_page_cb(button_data_t *data);
 void            button_prev_page_cb(button_data_t *data);

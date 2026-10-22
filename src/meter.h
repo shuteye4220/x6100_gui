@@ -33,3 +33,6 @@ lv_obj_t * meter_init(lv_obj_t * parent);
 void meter_update(float db, float beta);
 void meter_set_noise(float val);
 void meter_set_mode(meter_mode_t mode);
+
+/* Smoothed S-meter level in dBm. */
+float meter_get_db(void);

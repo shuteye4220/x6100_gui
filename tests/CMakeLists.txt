@@ -46,6 +46,14 @@ target_include_directories(test_civ PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_link_libraries(test_civ PRIVATE cat_core Catch2::Catch2WithMain)
 add_test(NAME test_civ COMMAND $<TARGET_FILE:test_civ> --colour-mode=ansi)
 
+# test_voice: the voice assistant's speech scheduling and speakable text
+# (src/voice_queue.cpp, src/voice_text.cpp; plain C++, no synthesizer).
+add_executable(test_voice test_voice.cpp
+    ${PROJECT_SOURCE_DIR}/src/voice_queue.cpp ${PROJECT_SOURCE_DIR}/src/voice_text.cpp)
+target_include_directories(test_voice PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_link_libraries(test_voice PRIVATE Catch2::Catch2WithMain)
+add_test(NAME test_voice COMMAND $<TARGET_FILE:test_voice> --colour-mode=ansi)
+
 # test_tx_level: the digital modes' drive level (src/tx_level.c, plain C,
 # no radio) against a model radio.
 add_executable(test_tx_level test_tx_level.cpp ${PROJECT_SOURCE_DIR}/src/tx_level.c)

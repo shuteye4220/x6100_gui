@@ -13,6 +13,7 @@
 #include "format.h"
 #include "cfg/cfg_api.h"
 #include "cfg/encoder_defaults.h"
+#include "voice_text.h"
 
 #include <stdio.h>
 #include <string>
@@ -682,9 +683,77 @@ void buttons_load_page(buttons_page_t *page) {
     for (uint8_t i = 0; i < BUTTONS; i++) {
         buttons_load(i, page->items[i]);
     }
-    if (page->items[0]->voice) {
-        voice_say_text_fmt("%s", page->items[0]->voice);
+    buttons_say_page(page, false);
+}
+
+/* "Volume page 1. F2 Volume, 10. F3 Squelch, 0. ..." or, for a window's
+ * keys, "F1 General. F2 Interface. ...". With the option off, only the
+ * page name, as before. */
+static std::string button_spoken(const button_data_t *b) {
+    if (!b || b->type == BTN_EMPTY) {
+        return "";
     }
+
+    std::string text;
+
+    if (b->type == BTN_TEXT && b->label) {
+        text = voice::label_text(b->label);
+    } else if (b->type == BTN_TEXT_FN && b->label_fn) {
+        text = voice::label_text(b->label_fn());
+    }
+    if (!text.empty() && b->disabled) {
+        text += ", disabled";
+    }
+    return text;
+}
+
+void buttons_say_page(buttons_page_t *page, bool on_demand) {
+    if (!page) {
+        return;
+    }
+
+    const button_data_t *first      = page->items[0];
+    const char          *page_voice = first ? first->voice : NULL;
+
+    if (on_demand) {
+        voice_sure();
+    } else if (!cfg.voice.keys()->get()) {
+        if (page_voice) {
+            voice_say_text_fmt("%s", page_voice);
+        }
+        return;
+    }
+
+    std::string text;
+
+    if (page_voice) {
+        std::string name(page_voice);
+
+        for (char &c : name) {
+            if (c == '|') {
+                c = ' ';
+            }
+        }
+        text = name + ".";
+    }
+
+    for (uint8_t i = 0; i < BUTTONS; i++) {
+        if (i == 0 && page_voice) {
+            continue; // the page key itself, already named
+        }
+
+        std::string item = button_spoken(page->items[i]);
+
+        if (item.empty()) {
+            continue;
+        }
+        if (!text.empty()) {
+            text += " ";
+        }
+        text += "F" + std::to_string(i + 1) + " " + item + ".";
+    }
+
+    voice_say_keys(text.c_str());
 }
 
 void buttons_unload_page() {

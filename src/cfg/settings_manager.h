@@ -298,6 +298,12 @@ class SettingsManager {
         StorageType::GLOBAL, pending_writes_, &global_params_};
     Parameter<int32_t> p_voice_msg_period{"voice_msg_period", 10, {},
         StorageType::GLOBAL, pending_writes_, {}, &global_params_};
+    // Speak what F1-F5 do when a key page or window opens
+    Parameter<int32_t> p_voice_keys{"voice_keys", true, 0, 1,
+        StorageType::GLOBAL, pending_writes_, &global_params_};
+    // Speak power and SWR after each transmission / ATU tune
+    Parameter<int32_t> p_voice_tx_report{"voice_tx_report", false, 0, 1,
+        StorageType::GLOBAL, pending_writes_, &global_params_};
 
     // Audio play/record gain (REAL in the DB, no scaling: matches legacy)
     Parameter<float> p_play_gain_db{"play_gain_db_f", 0.0f, {},

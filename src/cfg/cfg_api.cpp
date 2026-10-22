@@ -162,6 +162,8 @@ static ParamInt *cfg_voice_rate(void) { return param_ref<ParamInt>(cfg_instance(
 static ParamInt *cfg_voice_pitch(void) { return param_ref<ParamInt>(cfg_instance().p_voice_pitch); }
 static ParamInt *cfg_voice_volume(void) { return param_ref<ParamInt>(cfg_instance().p_voice_volume); }
 static ParamInt *cfg_voice_msg_period(void) { return param_ref<ParamInt>(cfg_instance().p_voice_msg_period); }
+static ParamInt *cfg_voice_keys(void) { return param_ref<ParamInt>(cfg_instance().p_voice_keys); }
+static ParamInt *cfg_voice_tx_report(void) { return param_ref<ParamInt>(cfg_instance().p_voice_tx_report); }
 static ParamFloat *cfg_play_gain_db(void) { return param_ref<ParamFloat>(cfg_instance().p_play_gain_db); }
 static ParamFloat *cfg_rec_gain_db(void) { return param_ref<ParamFloat>(cfg_instance().p_rec_gain_db); }
 static ParamInt *cfg_rtty_center(void) { return param_ref<ParamInt>(cfg_instance().p_rtty_center); }
@@ -411,6 +413,8 @@ extern "C" const cfg_refs_t cfg = {
         .pitch = &cfg_voice_pitch,
         .volume = &cfg_voice_volume,
         .msg_period = &cfg_voice_msg_period,
+        .keys = &cfg_voice_keys,
+        .tx_report = &cfg_voice_tx_report,
     },
     .audio = {
         .play_gain_db = &cfg_play_gain_db,

@@ -254,6 +254,18 @@ void main_screen_action(press_action_t action) {
             clock_say_bat_info();
             break;
 
+        case ACTION_VOICE_STATUS:
+            voice_say_status();
+            break;
+
+        case ACTION_VOICE_METER:
+            voice_say_meter();
+            break;
+
+        case ACTION_VOICE_KEYS:
+            buttons_say_page(buttons_get_cur_page(), true);
+            break;
+
         case ACTION_STEP_UP:
             next_freq_step(true);
             break;
@@ -267,6 +279,7 @@ void main_screen_action(press_action_t action) {
             b = !b;
             param_i_set(cfg.dsp.nr(), b);
             msg_update_text_fmt("#FFFFFF NR: %s", b ? "On" : "Off");
+            voice_say_text_fmt("Noise reduction %s", b ? "on" : "off");
             break;
 
         case ACTION_NB_TOGGLE:
@@ -274,6 +287,7 @@ void main_screen_action(press_action_t action) {
             b = !b;
             param_i_set(cfg.dsp.nb(), b);
             msg_update_text_fmt("#FFFFFF NB: %s", b ? "On" : "Off");
+            voice_say_text_fmt("Noise blanker %s", b ? "on" : "off");
             break;
 
         case ACTION_APP_RTTY:
@@ -445,12 +459,20 @@ static void keypad_pre(const event_keypad_t *kp) {
     }
 }
 
+static void band_change(bool up) {
+    if (!lm_get_band()) {
+        cfg_band_load_next(up);
+        voice_announce_band();
+    } else if (!dialog_running) {
+        /* A dialog that locks the band (FT8) handles band keys itself. */
+        voice_say_text_fmt("Band locked");
+    }
+    dialog_send(up ? EVENT_BAND_UP : EVENT_BAND_DOWN, NULL);
+}
+
 static void keypad_band(const event_keypad_t *kp, bool up) {
     if (kp->state == KEYPAD_RELEASE) {
-        if (!lm_get_band()) {
-            cfg_band_load_next(up);
-        }
-        dialog_send(up ? EVENT_BAND_UP : EVENT_BAND_DOWN, NULL);
+        band_change(up);
     }
 }
 
@@ -823,10 +845,7 @@ static void main_screen_hkey_cb(lv_event_t * e) {
                     freq_shift(+1, 0);
                 }
             } else if (hkey->state == HKEY_LONG) {
-                if (!lm_get_band()) {
-                    cfg_band_load_next(true);
-                }
-                dialog_send(EVENT_BAND_UP, NULL);
+                band_change(true);
             }
             break;
 
@@ -836,10 +855,7 @@ static void main_screen_hkey_cb(lv_event_t * e) {
                     freq_shift(-1, 0);
                 }
             } else if (hkey->state == HKEY_LONG) {
-                if (!lm_get_band()) {
-                    cfg_band_load_next(false);
-                }
-                dialog_send(EVENT_BAND_DOWN, NULL);
+                band_change(false);
             }
             break;
 
@@ -866,6 +882,7 @@ static void main_screen_hkey_cb(lv_event_t * e) {
 }
 
 static void rx_cb(void * s, lv_msg_t * msg) {
+    voice_set_tx(false);
     if (!dialog_running) {
         indicators_left_show(true);
     }
@@ -875,6 +892,7 @@ static void rx_cb(void * s, lv_msg_t * msg) {
 }
 
 static void tx_cb(void * s, lv_msg_t * msg) {
+    voice_set_tx(true);
     indicators_left_show(false);
     if (dialog_running) {
         lv_obj_move_foreground(top_container);
@@ -1060,17 +1078,11 @@ static void spectrum_key_cb(lv_event_t * e) {
             break;
 
         case KEYBOARD_PGUP:
-            if (!lm_get_band()) {
-                cfg_band_load_next(true);
-            }
-            dialog_send(EVENT_BAND_UP, NULL);
+            band_change(true);
             break;
 
         case KEYBOARD_PGDN:
-            if (!lm_get_band()) {
-                cfg_band_load_next(false);
-            }
-            dialog_send(EVENT_BAND_DOWN, NULL);
+            band_change(false);
             break;
 
         case HKEY_FINP:

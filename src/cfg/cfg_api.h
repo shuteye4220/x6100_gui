@@ -226,6 +226,8 @@ typedef struct {
     ParamInt *(*pitch)(void); /* p_voice_pitch */
     ParamInt *(*volume)(void); /* p_voice_volume */
     ParamInt *(*msg_period)(void); /* p_voice_msg_period */
+    ParamInt *(*keys)(void); /* p_voice_keys */
+    ParamInt *(*tx_report)(void); /* p_voice_tx_report */
 } cfg_voice_refs_t;
 
 typedef struct {
