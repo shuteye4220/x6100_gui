@@ -71,6 +71,7 @@ static dialog_t dialog = {
 dialog_t *dialog_settings = &dialog;
 
 static void load_general_page(button_data_t *btn_data) {
+    voice_a11y_page("General page", true);
     make_general_page(page);
     for (auto &&btn : btn_page.items) {
         buttons_mark(btn, false);
@@ -79,6 +80,7 @@ static void load_general_page(button_data_t *btn_data) {
 }
 
 static void load_ui_page(button_data_t *btn_data) {
+    voice_a11y_page("Interface page", true);
     make_ui_page(page);
     for (auto &&btn : btn_page.items) {
         buttons_mark(btn, false);
@@ -87,6 +89,7 @@ static void load_ui_page(button_data_t *btn_data) {
 }
 
 static void load_voice_page(button_data_t *btn_data) {
+    voice_a11y_page("Voice page", true);
     make_voice_page(page);
     for (auto &&btn : btn_page.items) {
         buttons_mark(btn, false);
@@ -95,6 +98,7 @@ static void load_voice_page(button_data_t *btn_data) {
 }
 
 static void load_info_page(button_data_t *btn_data) {
+    voice_a11y_page("Info page", true);
     make_info_page(page);
     for (auto &&btn : btn_page.items) {
         buttons_mark(btn, false);
@@ -105,6 +109,8 @@ static void load_info_page(button_data_t *btn_data) {
 static void construct_cb(lv_obj_t *parent) {
     dialog.obj  = dialog_init(parent);
     page.dialog = &dialog;
+    /* Said after "Settings window" and the key list, not over them. */
+    voice_a11y_page("General page", false);
     make_general_page(page);
     for (auto &&btn : btn_page.items) {
         buttons_mark(btn, false);

@@ -7,6 +7,7 @@
  */
 
 #include "dialog.h"
+#include "voice_a11y.h"
 
 #include "styles.h"
 #include "main_screen.h"
@@ -104,6 +105,9 @@ void dialog_item(dialog_t *dialog, lv_obj_t *obj) {
     lv_obj_set_style_border_color(obj, lv_color_white(), LV_STATE_FOCUS_KEY | LV_PART_INDICATOR);
 
     lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+
+    /* Before joining the group: joining may focus it at once. */
+    voice_a11y_item(obj);
 
     lv_group_add_obj(keyboard_group, obj);
 

@@ -1,5 +1,7 @@
 #include "settings_widgets.h"
 
+#include <string>
+
 #include <errno.h>
 #include <fcntl.h>
 #include <linux/rtc.h>
@@ -155,6 +157,7 @@ static void make_time(SettingsPage &page) {
     hour = obj;
 
     dialog_item(page.dialog, obj);
+    voice_a11y_set_name(obj, "Hour");
 
     lv_spinbox_set_value(obj, ts.tm_hour);
     lv_spinbox_set_range(obj, 0, 23);
@@ -173,6 +176,7 @@ static void make_time(SettingsPage &page) {
     min = obj;
 
     dialog_item(page.dialog, obj);
+    voice_a11y_set_name(obj, "Minute");
 
     lv_spinbox_set_value(obj, ts.tm_min);
     lv_spinbox_set_range(obj, 0, 59);
@@ -191,6 +195,7 @@ static void make_time(SettingsPage &page) {
     sec = obj;
 
     dialog_item(page.dialog, obj);
+    voice_a11y_set_name(obj, "Second");
 
     lv_spinbox_set_value(obj, ts.tm_sec);
     lv_spinbox_set_range(obj, 0, 59);
@@ -340,7 +345,6 @@ static void sp_mode_update_cb(lv_event_t *e) {
 
     bool on = lv_obj_has_state(obj, LV_STATE_CHECKED);
 
-    voice_say_bool("Speaker mode", on);
     cfg.radio.spmode()->set(on);
 }
 
@@ -402,6 +406,7 @@ static void make_tx_offset(SettingsPage &page) {
 
     lv_obj_t *slider =
         page.slider_int(cell, *cfg.band.tx_i_offset(), -10000, 10000, TX_OFFSET_SCALE, SMALL_3 - 110, "%d", nullptr, 1);
+    voice_a11y_set_name(slider, "TX I offset");
 
     Observer *observer = cfg.band.tx_i_offset()->subscribe(on_tx_offset_change, slider);
     page.observers.emplace_back(observer);
@@ -410,6 +415,7 @@ static void make_tx_offset(SettingsPage &page) {
 
     slider =
         page.slider_int(cell, *cfg.band.tx_q_offset(), -10000, 10000, TX_OFFSET_SCALE, SMALL_3 - 110, "%d", nullptr, 1);
+    voice_a11y_set_name(slider, "TX Q offset");
 
     observer = cfg.band.tx_q_offset()->subscribe(on_tx_offset_change, slider);
     page.observers.emplace_back(observer);
@@ -544,6 +550,7 @@ static void make_transverter(SettingsPage &page, ParamInt &from, ParamInt &to, P
     obj = lv_spinbox_create(page.grid);
 
     dialog_item(page.dialog, obj);
+    voice_a11y_set_name(obj, ("Transverter " + std::to_string(from.context_id() + 1) + " from, megahertz").c_str());
 
     lv_spinbox_set_value(obj, from.get() / 1000000L);
     lv_spinbox_set_range(obj, 70, 500);
@@ -560,6 +567,7 @@ static void make_transverter(SettingsPage &page, ParamInt &from, ParamInt &to, P
     obj = lv_spinbox_create(page.grid);
 
     dialog_item(page.dialog, obj);
+    voice_a11y_set_name(obj, ("Transverter " + std::to_string(from.context_id() + 1) + " to, megahertz").c_str());
 
     lv_spinbox_set_value(obj, to.get() / 1000000L);
     lv_spinbox_set_range(obj, 70, 500);
@@ -576,6 +584,7 @@ static void make_transverter(SettingsPage &page, ParamInt &from, ParamInt &to, P
     obj = lv_spinbox_create(page.grid);
 
     dialog_item(page.dialog, obj);
+    voice_a11y_set_name(obj, ("Transverter " + std::to_string(from.context_id() + 1) + " shift, megahertz").c_str());
 
     lv_spinbox_set_value(obj, shift.get() / 1000000L);
     lv_spinbox_set_range(obj, 42, 500);

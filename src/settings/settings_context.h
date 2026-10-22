@@ -9,6 +9,7 @@ extern "C" {
 
 #include "../cfg/cfg_api.h"
 #include "../dialog.h"
+#include "../voice_a11y.h"
 
 /* Shared grid metrics */
 
@@ -128,6 +129,7 @@ lv_obj_t *SettingsPage::slider_with_text(lv_obj_t *cell, T val, T min, T max, T 
     lv_obj_align(slider_label, LV_ALIGN_RIGHT_MID, 12, 0);
 
     lv_obj_set_user_data(obj, slider_label);
+    voice_a11y_set_value_label(obj, slider_label);
 
     lv_obj_add_event_cb(obj, cb, LV_EVENT_VALUE_CHANGED, cb_user_data);
     return obj;

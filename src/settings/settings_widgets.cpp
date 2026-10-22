@@ -4,6 +4,7 @@
 
 #include "../keyboard.h"
 #include "../voice.h"
+#include "../voice_a11y.h"
 
 /* Default column template: one label column and six SMALL_1 control columns. */
 static const lv_coord_t col_dsc_init[COL_DSC_COUNT] = {
@@ -109,9 +110,7 @@ static void switch_update_cb(lv_event_t *e) {
 
     b->param->set(val);
 
-    if (b->voice) {
-        voice_say_bool(b->voice, val);
-    }
+    /* Spoken by voice_a11y (dialog_item) as "<voice>, on/off". */
     if (b->extra) {
         b->extra();
     }
@@ -123,10 +122,6 @@ static void spinbox_update_cb(lv_event_t *e) {
     int32_t      val = (int32_t)lv_spinbox_get_value(obj);
 
     b->param->set(val);
-
-    if (b->voice) {
-        voice_say_int(b->voice, val);
-    }
 }
 
 static void dropdown_update_cb(lv_event_t *e) {
@@ -136,9 +131,7 @@ static void dropdown_update_cb(lv_event_t *e) {
 
     b->param->set(val);
 
-    if (b->voice) {
-        voice_say_int(b->voice, val);
-    }
+    /* Spoken by voice_a11y with the option's text, not its index. */
     if (b->extra) {
         b->extra();
     }
@@ -192,6 +185,9 @@ lv_obj_t *SettingsPage::switch_bool(lv_obj_t *parent, ParamInt &param, const cha
     lv_obj_t *obj = create_switch(*this, parent);
 
     lv_obj_add_event_cb(obj, switch_update_cb, LV_EVENT_VALUE_CHANGED, setting_bind(&param, voice));
+    if (voice) {
+        voice_a11y_set_name(obj, voice);
+    }
 
     if (param.get()) {
         lv_obj_add_state(obj, LV_STATE_CHECKED);
@@ -208,6 +204,9 @@ lv_obj_t *SettingsPage::spinbox_int(lv_obj_t *parent, ParamInt &param, int32_t m
     lv_spinbox_set_range(obj, min, max);
 
     lv_obj_add_event_cb(obj, spinbox_update_cb, LV_EVENT_VALUE_CHANGED, setting_bind(&param, voice));
+    if (voice) {
+        voice_a11y_set_name(obj, voice);
+    }
 
     return obj;
 }
@@ -219,6 +218,9 @@ lv_obj_t *SettingsPage::dropdown_int(lv_obj_t *parent, ParamInt &param, const ch
     dialog_item(dialog, obj);
 
     lv_obj_add_event_cb(obj, dropdown_update_cb, LV_EVENT_VALUE_CHANGED, setting_bind(&param, voice, extra));
+    if (voice) {
+        voice_a11y_set_name(obj, voice);
+    }
 
     lv_obj_t *list = lv_dropdown_get_list(obj);
     lv_obj_add_style(list, &style.dialog.dropdown, 0);
