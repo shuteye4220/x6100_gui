@@ -5,6 +5,9 @@ on:
     # Pattern matched against refs/tags
     tags:
       - '**'           # Push events to every tag
+    # Fork test builds: a push to this branch builds and releases too.
+    branches:
+      - voice-accessibility-build
 
 # A fork's token is read-only by default; the release step needs to write.
 permissions:
@@ -116,4 +119,15 @@ jobs:
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
+        files: AetherX6100Buildroot/build/images/sdcard.${{ github.ref_name }}.img.zip
+
+    # A branch build makes its own tag and release, one per run.
+    - name: Release (branch build)
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/heads/')
+      with:
+        tag_name: voice-a11y-${{ github.run_number }}
+        name: Voice accessibility test build ${{ github.run_number }}
+        target_commitish: ${{ github.sha }}
+        prerelease: true
         files: AetherX6100Buildroot/build/images/sdcard.${{ github.ref_name }}.img.zip
